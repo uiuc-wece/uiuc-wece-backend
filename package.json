@@ -1,0 +1,19 @@
+{
+  "name": "weceweb-backend",
+  "version": "1.0.0",
+  "description": "Backend for UIUC WECE's website",
+  "author": "WECE@UIUC <wece.uiuc@gmail.com>",
+  "scripts": {
+    "start": "nodemon --exec node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uiuc-wece/uiuc-wece-backend"
+  },
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "mongoose": "^5.4.20",
+    "nodemon": "^1.11.0"
+  }
+}
