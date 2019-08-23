@@ -1,4 +1,5 @@
 var user = require("../models/user.js");
+var mongoose = require("mongoose");
 
 async function getUser(req, res, next) {
   try {
@@ -14,25 +15,32 @@ async function getUser(req, res, next) {
   }
 }
 
+mongoose.set("useFindAndModify", false);
+
 async function updateUser(req, res, next) {
   try {
     var updatedUser = new user({
-      firstName: req.params.firstName,
-      lastName: req.params.lastName,
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
       netId: req.params.netId,
-      email: req.params.email,
-      major: req.params.major,
-      graduationDate: req.params.graduationDate
+      email: req.body.email,
+      major: req.body.major,
+      graduationDate: req.body.graduationDate
     });
+
+    var updatedDocument = {
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      netId: req.params.netId,
+      email: req.body.email,
+      major: req.body.major,
+      graduationDate: req.body.graduationDate
+    };
 
     await user.findOneAndUpdate(
       { netId: updatedUser.netId },
       {
-        firstName: updatedUser.firstName,
-        lastName: updatedUser.lastName,
-        email: updatedUser.email,
-        major: updatedUser.major,
-        graduationDate: updatedUser.graduationDate
+        $set: updatedDocument
       }
     );
     res.status(201).json({ message: "User Updated", data: updatedUser });
@@ -64,6 +72,11 @@ async function createUser(req, res, next) {
       major: req.body.major,
       graduationDate: req.body.graduationDate
     });
+
+    // if user with netID already exists, throw error
+    if ((await user.find({ netId: newUser.netId }).countDocuments()) > 0) {
+      throw Error("Account for this netID already exists");
+    }
 
     await newUser.save();
     await res.status(201).json({ message: "User Created", data: newUser });

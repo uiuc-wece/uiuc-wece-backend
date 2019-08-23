@@ -4,6 +4,7 @@ var mongoose = require("mongoose"),
   express = require("express");
 
 var router = require("./routes/index.js");
+var db = require("./db.js");
 
 // Create our Express application
 var app = express();

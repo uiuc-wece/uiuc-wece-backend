@@ -1,4 +1,5 @@
 var event = require("../models/event.js");
+var mongoose = require("mongoose");
 
 async function getEvent(req, res, next) {
   try {
@@ -16,23 +17,30 @@ async function getEvent(req, res, next) {
   }
 }
 
+mongoose.set("useFindAndModify", false);
+
 async function updateEvent(req, res, next) {
   try {
     var updatedEvent = new event({
-      title: req.params.title,
-      date: req.params.date,
-      room: req.params.room,
+      title: req.body.title,
+      date: req.body.date,
+      room: req.body.room,
       eventKey: req.params.eventKey,
-      eventPassword: req.params.eventPassword
+      eventPassword: req.body.eventPassword
     });
+
+    var updatedDocument = {
+      title: req.body.title,
+      date: req.body.date,
+      room: req.body.room,
+      eventKey: req.params.eventKey,
+      eventPassword: req.body.eventPassword
+    };
 
     await event.findOneAndUpdate(
       { eventKey: updatedEvent.eventKey },
       {
-        title: updatedEvent.title,
-        date: updatedEvent.date,
-        room: updatedEvent.room,
-        eventPassword: updatedEvent.eventPassword
+        $set: updatedDocument
       }
     );
     res.status(201).json({ message: "Event Updated", data: updatedEvent });
@@ -44,10 +52,10 @@ async function updateEvent(req, res, next) {
 async function deleteEvent(req, res, next) {
   try {
     let eventKey = req.params.eventKey;
-    if ((await user.find({ eventKey: eventKey }).count()) == 0) {
+    if ((await event.find({ eventKey: eventKey }).count()) == 0) {
       throw Error;
     }
-    await user.findOneAndDelete({ eventKey: eventKey });
+    await event.findOneAndDelete({ eventKey: eventKey });
     res.status(200).json({ message: "OK" });
   } catch (err) {
     res
@@ -58,7 +66,7 @@ async function deleteEvent(req, res, next) {
 
 async function createEvent(req, res, next) {
   try {
-    let newEvent = await new user({
+    let newEvent = await new event({
       title: req.body.title,
       date: req.body.date,
       room: req.body.room,
@@ -67,7 +75,9 @@ async function createEvent(req, res, next) {
     });
 
     // if event with key already exists, throw error
-    if ((await event.find({ eventKey: newEvent.eventKey }).count()) > 0) {
+    if (
+      (await event.find({ eventKey: newEvent.eventKey }).countDocuments()) > 0
+    ) {
       throw Error("Event key already exists");
     }
 
