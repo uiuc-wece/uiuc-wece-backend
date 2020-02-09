@@ -10,7 +10,7 @@ var db = require("./db.js");
 var app = express();
 
 // Use environment defined port or 4000
-var port = process.env.PORT || 4000;
+var port = process.env.PORT || 3000;
 
 // Allow CORS so that backend and frontend could be put on different servers
 var allowCrossDomain = function(req, res, next) {
