@@ -1,7 +1,7 @@
 var mongoose = require("mongoose");
-var secrets = require("./config/secrets");
+const mongo_connection = process.env.MONGODB_URL;
 
-mongoose.connect(secrets.mongo_connection, { useNewUrlParser: true });
+mongoose.connect(mongo_connection, { useNewUrlParser: true });
 
 mongoose.set("useCreateIndex", true);
 var db = mongoose.connection;
