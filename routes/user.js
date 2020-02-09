@@ -25,7 +25,8 @@ async function updateUser(req, res, next) {
       netId: req.params.netId,
       email: req.body.email,
       major: req.body.major,
-      graduationDate: req.body.graduationDate
+      graduationDate: req.body.graduationDate,
+      totalPoints: req.body.totalPoints
     });
 
     var updatedDocument = {
@@ -34,7 +35,8 @@ async function updateUser(req, res, next) {
       netId: req.params.netId,
       email: req.body.email,
       major: req.body.major,
-      graduationDate: req.body.graduationDate
+      graduationDate: req.body.graduationDate,
+      totalPoints: req.body.totalPoints
     };
 
     await user.findOneAndUpdate(
@@ -70,7 +72,8 @@ async function createUser(req, res, next) {
       netId: req.body.netId,
       email: req.body.email,
       major: req.body.major,
-      graduationDate: req.body.graduationDate
+      graduationDate: req.body.graduationDate,
+      totalPoints: req.body.totalPoints
     });
 
     // if user with netID already exists, throw error

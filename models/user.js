@@ -8,7 +8,8 @@ var UserSchema = new mongoose.Schema({
   netId: { type: String, required: true },
   email: { type: String },
   major: { type: String },
-  graduationDate: { type: Date }
+  graduationDate: { type: Date },
+  totalPoints: { type: Number }
 });
 
 // Export the Mongoose model
