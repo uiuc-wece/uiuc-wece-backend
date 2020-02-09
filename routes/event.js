@@ -25,6 +25,7 @@ async function updateEvent(req, res, next) {
       title: req.body.title,
       date: req.body.date,
       room: req.body.room,
+      points: req.body.points,
       eventKey: req.params.eventKey,
       eventPassword: req.body.eventPassword
     });
@@ -33,6 +34,7 @@ async function updateEvent(req, res, next) {
       title: req.body.title,
       date: req.body.date,
       room: req.body.room,
+      points: req.body.points,
       eventKey: req.params.eventKey,
       eventPassword: req.body.eventPassword
     };
@@ -70,6 +72,7 @@ async function createEvent(req, res, next) {
       title: req.body.title,
       date: req.body.date,
       room: req.body.room,
+      points: req.body.points,
       eventKey: req.body.eventKey,
       eventPassword: req.body.eventPassword
     });

@@ -6,6 +6,7 @@ var EventSchema = new mongoose.Schema({
   title: { type: String },
   date: { type: Date },
   room: { type: String },
+  points: { type: Number },
   eventKey: { type: String },
   eventPassword: { type: String }
 });
