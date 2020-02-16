@@ -73,7 +73,7 @@ async function createUser(req, res, next) {
       email: req.body.email,
       major: req.body.major,
       graduationDate: req.body.graduationDate,
-      totalPoints: req.body.totalPoints
+      totalPoints: 0
     });
 
     // if user with netID already exists, throw error
