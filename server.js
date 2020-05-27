@@ -3,8 +3,9 @@ var bodyParser = require("body-parser"),
   express = require("express");
 
 var router = require("./routes/index.js");
+require("./db");
 
-require('dotenv').config();
+if (process.env.NODE_ENV !== 'production') require('dotenv').config();
 
 // Create our Express application
 var app = express();

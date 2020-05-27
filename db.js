@@ -1,6 +1,6 @@
 var mongoose = require("mongoose");
 
-require('dotenv').config();
+require('dotenv').config({ silent: process.env.NODE_ENV === 'production' })
 
 const mongo_connection = process.env.MONGODB_URL;
 
