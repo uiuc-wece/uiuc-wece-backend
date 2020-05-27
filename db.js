@@ -1,4 +1,7 @@
 var mongoose = require("mongoose");
+
+require('dotenv').config();
+
 const mongo_connection = process.env.MONGODB_URL;
 
 mongoose.connect(mongo_connection, { useNewUrlParser: true });

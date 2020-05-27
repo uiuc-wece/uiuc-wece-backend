@@ -1,15 +1,15 @@
 // Get the packages we need
-var mongoose = require("mongoose"),
-  bodyParser = require("body-parser"),
+var bodyParser = require("body-parser"),
   express = require("express");
 
 var router = require("./routes/index.js");
-var db = require("./db.js");
+
+require('dotenv').config();
 
 // Create our Express application
 var app = express();
 
-// Use environment defined port or 4000
+// Use environment defined port or 3000
 var port = process.env.PORT || 3000;
 
 // Allow CORS so that backend and frontend could be put on different servers
