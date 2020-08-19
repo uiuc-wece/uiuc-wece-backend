@@ -1,10 +1,10 @@
-var event = require("../models/event.js");
+var Event = require("../models/event.js");
 var mongoose = require("mongoose");
 
 async function getEvent(req, res, next) {
   try {
     let eventKey = req.params.eventKey;
-    let k = await event.findOne({ eventKey: eventKey });
+    let k = await Event.findOne({ eventKey: eventKey });
     // if event is not found, throw error
     if (k == null) {
       throw Error;
@@ -21,28 +21,30 @@ mongoose.set("useFindAndModify", false);
 
 async function updateEvent(req, res, next) {
   try {
-    var updatedEvent = new event({
+    var updatedEvent = new Event({
       title: req.body.title,
       date: req.body.date,
-      room: req.body.room,
+      location: req.body.location,
       points: req.body.points,
       eventKey: req.params.eventKey,
-      eventPassword: req.body.eventPassword
+      eventPassword: req.body.eventPassword,
+      zoomLink: req.body.zoomLink,
     });
 
     var updatedDocument = {
       title: req.body.title,
       date: req.body.date,
-      room: req.body.room,
+      location: req.body.location,
       points: req.body.points,
       eventKey: req.params.eventKey,
-      eventPassword: req.body.eventPassword
+      eventPassword: req.body.eventPassword,
+      zoomLink: req.body.zoomLink,
     };
 
-    await event.findOneAndUpdate(
+    await Event.findOneAndUpdate(
       { eventKey: updatedEvent.eventKey },
       {
-        $set: updatedDocument
+        $set: updatedDocument,
       }
     );
     res.status(201).json({ message: "Event Updated", data: updatedEvent });
@@ -54,10 +56,10 @@ async function updateEvent(req, res, next) {
 async function deleteEvent(req, res, next) {
   try {
     let eventKey = req.params.eventKey;
-    if ((await event.find({ eventKey: eventKey }).count()) == 0) {
+    if ((await Event.find({ eventKey: eventKey }).count()) == 0) {
       throw Error;
     }
-    await event.findOneAndDelete({ eventKey: eventKey });
+    await Event.findOneAndDelete({ eventKey: eventKey });
     res.status(200).json({ message: "OK" });
   } catch (err) {
     res
@@ -68,18 +70,19 @@ async function deleteEvent(req, res, next) {
 
 async function createEvent(req, res, next) {
   try {
-    let newEvent = await new event({
+    let newEvent = await new Event({
       title: req.body.title,
       date: req.body.date,
-      room: req.body.room,
+      location: req.body.location,
       points: req.body.points,
       eventKey: req.body.eventKey,
-      eventPassword: req.body.eventPassword
+      eventPassword: req.body.eventPassword,
+      zoomLink: req.body.zoomLink,
     });
 
     // if event with key already exists, throw error
     if (
-      (await event.find({ eventKey: newEvent.eventKey }).countDocuments()) > 0
+      (await Event.find({ eventKey: newEvent.eventKey }).countDocuments()) > 0
     ) {
       throw Error("Event key already exists");
     }
@@ -95,5 +98,5 @@ module.exports = {
   getEvent: getEvent,
   updateEvent: updateEvent,
   deleteEvent: deleteEvent,
-  createEvent: createEvent
+  createEvent: createEvent,
 };
