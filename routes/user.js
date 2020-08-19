@@ -1,17 +1,19 @@
-var user = require("../models/user.js");
+var User = require("../models/user.js");
 var mongoose = require("mongoose");
 
 async function getUser(req, res, next) {
   try {
-    let netId = req.params.netId;
-    let k = await user.findOne({ netId: netId });
+    let username = req.params.username;
+    let k = await User.findOne({ username: username });
     // if user not found, throw error
     if (k == null) {
       throw Error;
     }
     res.status(200).json({ message: "OK", data: k });
   } catch (err) {
-    res.status(404).json({ message: "Invalid NetID", data: "User not found" });
+    res
+      .status(404)
+      .json({ message: "Invalid Username", data: "User not found" });
   }
 }
 
@@ -19,30 +21,28 @@ mongoose.set("useFindAndModify", false);
 
 async function updateUser(req, res, next) {
   try {
-    var updatedUser = new user({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      netId: req.params.netId,
-      email: req.body.email,
-      major: req.body.major,
-      graduationDate: req.body.graduationDate,
-      totalPoints: req.body.totalPoints
-    });
-
     var updatedDocument = {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
-      netId: req.params.netId,
+      username: req.params.username,
+      password: req.body.password,
+      accountType: req.body.accountType,
       email: req.body.email,
       major: req.body.major,
+      studentStatus: req.body.studentStatus,
+      joinDate: req.body.joinDate,
       graduationDate: req.body.graduationDate,
-      totalPoints: req.body.totalPoints
+      totalPoints: req.body.totalPoints,
+      eventsAttended: req.body.eventsAttended,
+      committees: req.body.committees,
     };
 
-    await user.findOneAndUpdate(
-      { netId: updatedUser.netId },
+    var updatedUser = new User(updatedDocument);
+
+    await User.findOneAndUpdate(
+      { username: updatedUser.username },
       {
-        $set: updatedDocument
+        $set: updatedDocument,
       }
     );
     res.status(201).json({ message: "User Updated", data: updatedUser });
@@ -53,32 +53,42 @@ async function updateUser(req, res, next) {
 
 async function deleteUser(req, res, next) {
   try {
-    let netId = req.params.netId;
-    if ((await user.find({ netId: netId }).count()) == 0) {
+    let username = req.params.username;
+    if ((await User.find({ username: username }).count()) == 0) {
       throw Error;
     }
-    await user.findOneAndDelete({ netId: netId });
+    await User.findOneAndDelete({ username: username });
     res.status(200).json({ message: "OK" });
   } catch (err) {
-    res.status(404).json({ message: "Invalid NetID", data: "User not found" });
+    res
+      .status(404)
+      .json({ message: "Invalid Username", data: "User not found" });
   }
 }
 
 async function createUser(req, res, next) {
   try {
-    let newUser = await new user({
+    let newUser = await new User({
       firstName: req.body.firstName,
       lastName: req.body.lastName,
-      netId: req.body.netId,
+      username: req.body.username,
+      password: req.body.password,
+      accountType: req.body.accountType,
       email: req.body.email,
       major: req.body.major,
+      studentStatus: req.body.studentStatus,
+      joinDate: new Date(),
       graduationDate: req.body.graduationDate,
-      totalPoints: 0
+      totalPoints: 0,
+      eventsAttended: [],
+      committees: req.body.committees,
     });
 
-    // if user with netID already exists, throw error
-    if ((await user.find({ netId: newUser.netId }).countDocuments()) > 0) {
-      throw Error("Account for this netID already exists");
+    // if user with username already exists, throw error
+    if (
+      (await User.find({ username: newUser.username }).countDocuments()) > 0
+    ) {
+      throw Error("This username has already been taken");
     }
 
     await newUser.save();
@@ -92,5 +102,5 @@ module.exports = {
   getUser: getUser,
   updateUser: updateUser,
   deleteUser: deleteUser,
-  createUser: createUser
+  createUser: createUser,
 };
