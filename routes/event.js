@@ -1,5 +1,5 @@
-var Event = require("../models/event.js");
-var mongoose = require("mongoose");
+import Event from "../models/event.js";
+import mongoose from "mongoose";
 
 async function getEvent(req, res, next) {
   try {
@@ -94,9 +94,4 @@ async function createEvent(req, res, next) {
   }
 }
 
-module.exports = {
-  getEvent: getEvent,
-  updateEvent: updateEvent,
-  deleteEvent: deleteEvent,
-  createEvent: createEvent,
-};
+export { getEvent, updateEvent, deleteEvent, createEvent };

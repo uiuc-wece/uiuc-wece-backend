@@ -1,5 +1,5 @@
 // Load required packages
-var mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 // Define our event schema
 var EventSchema = new mongoose.Schema({
@@ -15,4 +15,4 @@ var EventSchema = new mongoose.Schema({
 });
 
 // Export the Mongoose model
-module.exports = mongoose.model("Event", EventSchema);
+export default mongoose.model("Event", EventSchema);
