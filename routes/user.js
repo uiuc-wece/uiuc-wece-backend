@@ -1,25 +1,49 @@
-var User = require("../models/user.js");
-var mongoose = require("mongoose");
+import User from "../models/user.js";
+import mongoose from "mongoose";
+import { verifyPassword, hashPassword } from "../auth/utils.js";
+import { login } from "../auth/strategies/jwt.js";
 
-async function getUser(req, res, next) {
+async function getUserById(id) {
+  return await User.findById(id).exec();
+}
+
+async function getUser(req, res) {
+  const { email, password } = req.body;
   try {
-    let username = req.params.username;
-    let k = await User.findOne({ username: username });
+    let user = await User.findOne({ email: email }).exec();
     // if user not found, throw error
-    if (k == null) {
-      throw Error;
+    if (user == null) {
+      throw Error("Invalid Email");
     }
-    res.status(200).json({ message: "OK", data: k });
+    // verify password
+    if (!(await verifyPassword(password, user.password))) {
+      throw Error("Incorrect Password");
+    }
+
+    await login(req, user)
+      .then((token) => {
+        res
+          .status(201)
+          .cookie("jwt", token, { httpOnly: true })
+          .json({ success: true, message: "Logged in", data: "/" });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          success: false,
+          message: "Login error",
+          data: err,
+        });
+      });
   } catch (err) {
     res
       .status(404)
-      .json({ message: "Invalid Username", data: "User not found" });
+      .json({ success: false, message: err, data: "Could not log in user." });
   }
 }
 
 mongoose.set("useFindAndModify", false);
 
-async function updateUser(req, res, next) {
+async function updateUser(req, res) {
   try {
     var updatedDocument = {
       firstName: req.body.firstName,
@@ -39,68 +63,92 @@ async function updateUser(req, res, next) {
 
     var updatedUser = new User(updatedDocument);
 
-    await User.findOneAndUpdate(
+    await findOneAndUpdate(
       { username: updatedUser.username },
       {
         $set: updatedDocument,
       }
     );
-    res.status(201).json({ message: "User Updated", data: updatedUser });
+    res
+      .status(201)
+      .json({ success: true, message: "User Updated", data: updatedUser });
   } catch (err) {
-    res.status(404).json({ message: "User not found" });
+    res.status(404).json({ success: false, message: "User not found" });
   }
 }
 
-async function deleteUser(req, res, next) {
+async function deleteUser(req, res) {
   try {
     let username = req.params.username;
-    if ((await User.find({ username: username }).count()) == 0) {
+    if ((await find({ username: username }).count()) == 0) {
       throw Error;
     }
-    await User.findOneAndDelete({ username: username });
-    res.status(200).json({ message: "OK" });
+    await findOneAndDelete({ username: username });
+    res.status(200).json({ success: true, message: "OK" });
   } catch (err) {
-    res
-      .status(404)
-      .json({ message: "Invalid Username", data: "User not found" });
+    res.status(404).json({
+      success: false,
+      message: "Invalid Username",
+      data: "User not found",
+    });
   }
 }
 
-async function createUser(req, res, next) {
+async function createUser(req, res) {
+  const {
+    firstName,
+    lastName,
+    email,
+    password,
+    accountType,
+    major,
+    studentStatus,
+    graduationDate,
+    committees,
+  } = req.body;
+
   try {
-    let newUser = await new User({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      username: req.body.username,
-      password: req.body.password,
-      accountType: req.body.accountType,
-      email: req.body.email,
-      major: req.body.major,
-      studentStatus: req.body.studentStatus,
+    let newUser = new User({
+      firstName,
+      lastName,
+      email,
+      password: await hashPassword(password),
+      accountType,
+      major,
+      studentStatus,
       joinDate: new Date(),
-      graduationDate: req.body.graduationDate,
+      graduationDate,
       totalPoints: 0,
       eventsAttended: [],
-      committees: req.body.committees,
+      committees,
     });
 
-    // if user with username already exists, throw error
-    if (
-      (await User.find({ username: newUser.username }).countDocuments()) > 0
-    ) {
-      throw Error("This username has already been taken");
+    // if user with email already exists, throw error
+    if ((await User.find({ email: newUser.email }).countDocuments()) > 0) {
+      throw Error("This email has already been taken");
     }
 
     await newUser.save();
-    await res.status(201).json({ message: "User Created", data: newUser });
+
+    await login(req, user)
+      .then((token) => {
+        res
+          .status(201)
+          .cookie("jwt", token, { httpOnly: true })
+          .json({ success: true, message: "User Created", data: "" });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          success: false,
+          message: "Authentication error",
+          data: err,
+        });
+      });
   } catch (err) {
-    await res.status(404).json({ message: "Invalid parameters", data: err });
+    res
+      .status(404)
+      .json({ success: false, message: "Invalid parameters", data: err });
   }
 }
 
-module.exports = {
-  getUser: getUser,
-  updateUser: updateUser,
-  deleteUser: deleteUser,
-  createUser: createUser,
-};
+export { getUserById, getUser, updateUser, deleteUser, createUser };
